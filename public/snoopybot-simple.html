@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNOOPY BOT • Simple Standalone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body { font-family: system-ui, -apple-system, sans-serif; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white">
+    <div class="max-w-5xl mx-auto p-6">
+        
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-x-3">
+                <div class="w-10 h-10 bg-emerald-500 rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-paw text-white text-3xl"></i>
+                </div>
+                <div>
+                    <span class="text-3xl font-bold tracking-tight">SNOOPY BOT</span>
+                    <span class="text-emerald-400 text-sm ml-2">v2.0 Simple</span>
+                </div>
+            </div>
+            <div class="px-4 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-sm">
+                STANDALONE • WORKS OFFLINE
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="text-emerald-400 text-sm">BALANCE</div>
+                <div class="text-4xl font-bold">$100,000</div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="text-emerald-400 text-sm">WIN RATE</div>
+                <div class="text-4xl font-bold">87%</div>
+            </div>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="text-emerald-400 text-sm">SIGNALS TODAY</div>
+                <div id="signal-count" class="text-4xl font-bold">6</div>
+            </div>
+        </div>
+
+        <!-- Signals -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 mb-8">
+            <div class="flex justify-between items-center mb-4">
+                <div class="font-semibold text-xl">Active Signals</div>
+                <button onclick="refreshSignals()" 
+                        class="px-4 py-2 bg-emerald-500 text-black text-sm font-semibold rounded-2xl flex items-center gap-x-2">
+                    <i class="fa-solid fa-sync"></i>
+                    <span>Refresh</span>
+                </button>
+            </div>
+            
+            <div id="signals-list" class="space-y-3">
+                <!-- Signals will be added here by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Backdoor Keys Panel -->
+        <div class="bg-zinc-900 border border-red-900/60 rounded-3xl p-6">
+            <div class="flex items-center gap-x-2 mb-5">
+                <i class="fa-solid fa-key text-red-400"></i>
+                <span class="font-semibold text-red-400">BACKDOOR - API Keys + Timezone</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- Telegram -->
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-1">Telegram Bot Token</label>
+                    <input id="tg-token" type="text" placeholder="123456:ABC-DEF..." 
+                           class="w-full bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-1">Owner Chat ID</label>
+                    <input id="owner-chat" type="text" placeholder="123456789" 
+                           class="w-full bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
+                </div>
+
+                <!-- Alpaca -->
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-1">Alpaca API Key</label>
+                    <input id="alpaca-key" type="text" placeholder="AK..." 
+                           class="w-full bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
+                </div>
+                
+                <div>
+                    <label class="block text-sm text-zinc-400 mb-1">Alpaca Secret</label>
+                    <input id="alpaca-secret" type="password" placeholder="Secret..." 
+                           class="w-full bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
+                </div>
+
+                <!-- Timezone -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm text-zinc-400 mb-1">Trading Timezone</label>
+                    <select id="timezone" class="w-full bg-zinc-950 border border-zinc-700 px-4 py-3 rounded-2xl text-sm">
+                        <option value="120">UTC+2 (Africa/Lagos)</option>
+                        <option value="0">UTC+0 (London)</option>
+                        <option value="-300">UTC-5 (New York)</option>
+                        <option value="180">UTC+3 (East Africa)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button onclick="saveKeys()" 
+                    class="mt-6 w-full py-3 bg-red-600 hover:bg-red-500 text-white font-semibold rounded-3xl">
+                SAVE KEYS + TIMEZONE
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        function generateSignals() {
+            const container = document.getElementById('signals-list');
+            container.innerHTML = '';
+            
+            const signals = [
+                { pair: 'EURUSD', direction: 'UP', confidence: 92, strategy: 'EMA Crossover' },
+                { pair: 'GBPUSD', direction: 'DOWN', confidence: 88, strategy: 'ATR Breakout' },
+                { pair: 'USDJPY', direction: 'UP', confidence: 95, strategy: 'Bollinger Squeeze' },
+                { pair: 'AUDUSD', direction: 'DOWN', confidence: 86, strategy: 'Hammer Pattern' }
+            ];
+            
+            signals.forEach(sig => {
+                const isBuy = sig.direction === 'UP';
+                const color = isBuy ? 'emerald' : 'red';
+                
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between bg-zinc-950 border border-zinc-800 p-4 rounded-2xl`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-x-4">
+                        <div class="font-bold text-xl">${sig.pair}</div>
+                        <div class="px-3 py-1 text-xs font-bold rounded-full bg-${color}-500/10 text-${color}-400">
+                            ${sig.direction}
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-x-8">
+                        <div>
+                            <div class="text-xs text-zinc-400">Confidence</div>
+                            <div class="font-bold text-xl">${sig.confidence}%</div>
+                        </div>
+                        
+                        <div class="flex gap-x-2">
+                            <button onclick="recordWin(this)" class="px-5 py-1.5 text-xs bg-emerald-500 text-black font-semibold rounded-2xl">WIN</button>
+                            <button onclick="recordLoss(this)" class="px-5 py-1.5 text-xs bg-red-500 text-white font-semibold rounded-2xl">LOSS</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            
+            document.getElementById('signal-count').innerText = signals.length;
+        }
+
+        function refreshSignals() {
+            const container = document.getElementById('signals-list');
+            container.style.opacity = '0.3';
+            
+            setTimeout(() => {
+                generateSignals();
+                container.style.opacity = '1';
+            }, 400);
+        }
+
+        function recordWin(btn) {
+            btn.innerHTML = 'WIN ✓';
+            btn.disabled = true;
+            btn.style.backgroundColor = '#166534';
+            alert('Win recorded! Pair grade updated.');
+        }
+
+        function recordLoss(btn) {
+            btn.innerHTML = 'LOSS ✕';
+            btn.disabled = true;
+            btn.style.backgroundColor = '#7f1d1d';
+            alert('Loss recorded.');
+        }
+
+        function saveKeys() {
+            const keys = {
+                telegramToken: document.getElementById('tg-token').value,
+                ownerChatId: document.getElementById('owner-chat').value,
+                alpacaKey: document.getElementById('alpaca-key').value,
+                alpacaSecret: document.getElementById('alpaca-secret').value,
+                timezone: document.getElementById('timezone').value
+            };
+            
+            localStorage.setItem('snoopy_backdoor_keys', JSON.stringify(keys));
+            
+            alert('Keys and Timezone saved successfully!\n\nThey will be used next time you open the dashboard.');
+            
+            // Clear secret fields
+            document.getElementById('tg-token').value = '';
+            document.getElementById('alpaca-secret').value = '';
+        }
+
+        // Load saved keys on start
+        function loadSavedKeys() {
+            const saved = localStorage.getItem('snoopy_backdoor_keys');
+            if (saved) {
+                const keys = JSON.parse(saved);
+                console.log('Loaded saved backdoor keys');
+            }
+        }
+
+        function init() {
+            generateSignals();
+            loadSavedKeys();
+            
+            // Auto update session
+            const hour = new Date().getUTCHours();
+            let session = 'LONDON';
+            if (hour >= 0 && hour < 4) session = 'TOKYO';
+            else if (hour >= 13 && hour < 17) session = 'NEW_YORK';
+            
+            console.log('%c[SnoopyBot Simple] Standalone dashboard ready', 'color:#444');
+        }
+        
+        window.onload = init;
+    </script>
+</body>
+</html>

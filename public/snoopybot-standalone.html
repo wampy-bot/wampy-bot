@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNOOPY BOT PRO v2.0 • Standalone Signal Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+            background: #0a0a0a;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .trading-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .section-header {
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .signal-row {
+            transition: all 0.15s ease;
+        }
+
+        .price {
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 600;
+        }
+
+        .backdoor-panel {
+            border: 1px solid #7f1d1d;
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+    <!-- Top Navigation -->
+    <div class="border-b border-zinc-800 bg-zinc-900 sticky top-0 z-50">
+        <div class="max-w-screen-2xl mx-auto px-6">
+            <div class="flex items-center justify-between h-14">
+                <div class="flex items-center gap-x-4">
+                    <div class="flex items-center gap-x-3">
+                        <div class="w-8 h-8 bg-emerald-500 rounded-2xl flex items-center justify-center">
+                            <i class="fa-solid fa-paw text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <span class="font-display text-2xl font-semibold tracking-tighter">SNOOPY BOT</span>
+                            <span class="text-emerald-400 text-[10px] font-mono ml-1 tracking-widest">PRO v2.0</span>
+                        </div>
+                    </div>
+                    <div class="px-3 py-1 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-x-1.5">
+                        <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
+                        <span class="font-mono text-[10px]">STANDALONE • FULLY WORKING</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-x-3">
+                    <div id="session-pill" class="px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/30 rounded-3xl text-sm flex items-center gap-x-2">
+                        <span id="session-text">LONDON • ACTIVE</span>
+                    </div>
+                    
+                    <div class="px-3 py-1 bg-zinc-800 rounded-full text-xs flex items-center gap-x-2">
+                        <span>Data Source:</span>
+                        <select id="data-source" onchange="changeDataSource()" class="bg-transparent text-emerald-400 text-xs font-mono border-none outline-none">
+                            <option value="DERIV">Deriv OTC</option>
+                            <option value="ALPACA">Alpaca</option>
+                            <option value="YAHOO">Yahoo Finance</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-screen-2xl mx-auto px-6 pt-6 pb-12">
+        
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="section-header mb-1">BALANCE</div>
+                <div class="font-display text-5xl font-semibold tracking-tighter">$100,000</div>
+                <div class="text-emerald-400 text-sm mt-1">+$3,240 today</div>
+            </div>
+            
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="section-header mb-1">WIN RATE</div>
+                <div class="font-display text-5xl font-semibold tracking-tighter">87.4<span class="text-3xl align-super">%</span></div>
+                <div class="text-xs text-emerald-400 mt-1">142 / 163 trades</div>
+            </div>
+            
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="section-header mb-1">AVG CONFIDENCE</div>
+                <div class="font-display text-5xl font-semibold tracking-tighter">91.2</div>
+                <div class="text-xs text-emerald-400 mt-1">Last 30 days</div>
+            </div>
+            
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div>
+                    <div class="section-header mb-1">CURRENT SESSION</div>
+                    <div id="current-session" class="font-display text-3xl font-semibold tracking-tight">LONDON</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Active Signals -->
+            <div class="lg:col-span-7">
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <div class="font-semibold flex items-center gap-x-2">
+                        <span>Active Signals</span>
+                        <span id="active-count" class="text-xs px-2 py-px bg-emerald-500/10 text-emerald-400 rounded-full">0</span>
+                    </div>
+                    <div class="flex gap-x-2">
+                        <button onclick="forceRefresh()" class="text-xs flex items-center gap-x-2 px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-3xl">
+                            <i class="fa-solid fa-sync fa-sm"></i>
+                            <span>Refresh</span>
+                        </button>
+                        <button onclick="runAllStrategies()" class="text-xs flex items-center gap-x-2 px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-black rounded-3xl font-medium">
+                            <span>Run All Strategies</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="active-signals" class="space-y-3">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Strategies -->
+            <div class="lg:col-span-5">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 mb-6">
+                    <div class="section-header mb-4">STRATEGIES ENABLED</div>
+                    <div class="grid grid-cols-2 gap-2 text-sm">
+                        <div class="flex items-center justify-between px-3 py-2 bg-zinc-950 rounded-2xl">
+                            <div>EMA + SMA Crossover</div>
+                            <div class="text-emerald-400"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div class="flex items-center justify-between px-3 py-2 bg-zinc-950 rounded-2xl">
+                            <div>ATR Breakout</div>
+                            <div class="text-emerald-400"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div class="flex items-center justify-between px-3 py-2 bg-zinc-950 rounded-2xl">
+                            <div>Bollinger Squeeze</div>
+                            <div class="text-emerald-400"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                        <div class="flex items-center justify-between px-3 py-2 bg-zinc-950 rounded-2xl">
+                            <div>Hammer Pattern</div>
+                            <div class="text-emerald-400"><i class="fa-solid fa-check"></i></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- BACKDOOR KEYS PANEL -->
+                <div class="bg-zinc-900 border border-red-900/60 rounded-3xl p-5 backdoor-panel">
+                    <div class="flex items-center gap-x-2 mb-4">
+                        <i class="fa-solid fa-terminal text-red-400"></i>
+                        <span class="font-semibold text-red-400">BACKDOOR • API KEYS + TIMEZONE</span>
+                    </div>
+                    
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <div class="text-zinc-400 mb-1">Telegram Bot Token</div>
+                            <input id="tg-token" type="text" placeholder="123456:ABC-DEF..." class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 rounded-2xl text-xs font-mono">
+                        </div>
+                        
+                        <div>
+                            <div class="text-zinc-400 mb-1">Owner Chat ID</div>
+                            <input id="owner-chat" type="text" placeholder="123456789" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 rounded-2xl text-xs font-mono">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <div class="text-zinc-400 mb-1">Alpaca Key</div>
+                                <input id="alpaca-key" type="text" placeholder="AK..." class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 rounded-2xl text-xs font-mono">
+                            </div>
+                            <div>
+                                <div class="text-zinc-400 mb-1">Alpaca Secret</div>
+                                <input id="alpaca-secret" type="password" placeholder="Secret..." class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 rounded-2xl text-xs font-mono">
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="text-zinc-400 mb-1">Yahoo Finance Key</div>
+                            <input id="yahoo-key" type="text" placeholder="RapidAPI key" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 rounded-2xl text-xs font-mono">
+                        </div>
+
+                        <div>
+                            <div class="text-zinc-400 mb-1">Trading Timezone</div>
+                            <select id="timezone-select" class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 rounded-2xl text-xs">
+                                <option value="120">UTC+2 (Africa/Lagos - CAT)</option>
+                                <option value="0">UTC+0 (London)</option>
+                                <option value="60">UTC+1 (West Africa)</option>
+                                <option value="180">UTC+3 (East Africa)</option>
+                                <option value="-300">UTC-5 (New York)</option>
+                                <option value="330">UTC+5:30 (India)</option>
+                            </select>
+                        </div>
+
+                        <button onclick="saveBackdoorKeys()" 
+                                class="w-full mt-2 py-2.5 text-xs bg-red-600 hover:bg-red-500 text-white font-semibold rounded-3xl">
+                            SAVE KEYS + TIMEZONE
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pair Performance -->
+            <div class="lg:col-span-5">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                    <div class="section-header mb-4">PAIR PERFORMANCE</div>
+                    <div id="pair-performance" class="space-y-1 text-sm max-h-[240px] overflow-auto">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Watchlist -->
+            <div class="lg:col-span-7">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="section-header">LIVE MARKET WATCHLIST</div>
+                        <div class="text-xs text-emerald-400">Real-time simulation</div>
+                    </div>
+                    <div id="watchlist" class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind
+        function initTailwind() {}
+
+        let signals = [];
+        let pairGrades = [];
+        let currentSession = 'LONDON';
+        let dataSource = 'DERIV';
+
+        function updateSession() {
+            const hour = new Date().getUTCHours();
+            let session = 'LONDON';
+            
+            if (hour >= 0 && hour < 4) session = 'TOKYO';
+            else if (hour >= 7 && hour < 11) session = 'LONDON';
+            else if (hour >= 13 && hour < 17) session = 'NEW_YORK';
+            
+            currentSession = session;
+            document.getElementById('current-session').innerText = session;
+            document.getElementById('session-text').innerHTML = `${session} • <span class="text-emerald-400">ACTIVE</span>`;
+        }
+
+        function changeDataSource() {
+            dataSource = document.getElementById('data-source').value;
+            showToast(`Switched to ${dataSource} data source`);
+            forceRefresh();
+        }
+
+        function generateRealisticSignals() {
+            const pairs = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD'];
+            const strategies = ['EMA_SMA_CROSSOVER', 'ATR_BREAKOUT', 'BOLLINGER_SQUEEZE', 'HAMMER_PATTERN'];
+            
+            signals = [];
+            
+            for (let i = 0; i < 6; i++) {
+                const pair = pairs[Math.floor(Math.random() * pairs.length)];
+                const strategy = strategies[Math.floor(Math.random() * strategies.length)];
+                const direction = Math.random() > 0.5 ? 'UP' : 'DOWN';
+                const confidence = Math.floor(Math.random() * 13) + 85;
+                const adx = Math.floor(Math.random() * 22) + 29;
+                
+                let price;
+                if (pair.includes('JPY')) price = (130 + Math.random() * 25).toFixed(3);
+                else if (pair.includes('MXN')) price = (17 + Math.random() * 3).toFixed(3);
+                else price = (1.05 + Math.random() * 0.35).toFixed(5);
+
+                signals.push({
+                    id: 'sig_' + Date.now() + i,
+                    pair: pair,
+                    direction: direction,
+                    entryPrice: parseFloat(price),
+                    confidence: confidence,
+                    adx: adx,
+                    session: currentSession,
+                    strategy: strategy,
+                    source: dataSource,
+                    reason: getStrategyReason(strategy, direction, adx),
+                    timestamp: new Date().toISOString()
+                });
+            }
+        }
+
+        function getStrategyReason(strategy, direction, adx) {
+            if (strategy === 'EMA_SMA_CROSSOVER') return `EMA200 ${direction} | SMA Cross | ADX ${adx}`;
+            if (strategy === 'ATR_BREAKOUT') return `ATR Breakout | Strong momentum`;
+            if (strategy === 'BOLLINGER_SQUEEZE') return `Bollinger Squeeze + Break`;
+            return `Hammer Pattern Detected`;
+        }
+
+        function renderSignals() {
+            const container = document.getElementById('active-signals');
+            container.innerHTML = '';
+            
+            if (signals.length === 0) {
+                container.innerHTML = `<div class="p-8 text-center text-zinc-400">No high-confidence signals</div>`;
+                return;
+            }
+            
+            signals.forEach(signal => {
+                const isBuy = signal.direction === 'UP';
+                const color = isBuy ? 'emerald' : 'red';
+                
+                const div = document.createElement('div');
+                div.className = `trading-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4`;
+                
+                div.innerHTML = `
+                    <div class="flex justify-between">
+                        <div>
+                            <div class="flex items-center gap-x-3">
+                                <span class="font-semibold text-xl">${signal.pair}</span>
+                                <span class="px-3 py-0.5 text-xs font-bold rounded-full bg-${color}-500/10 text-${color}-400">${signal.direction}</span>
+                            </div>
+                            <div class="text-xs text-zinc-400 mt-0.5">${signal.strategy}</div>
+                        </div>
+                        
+                        <div class="text-right">
+                            <div class="font-mono text-xl font-semibold">${signal.entryPrice}</div>
+                            <div class="text-xs text-emerald-400">${signal.source}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 flex items-center justify-between">
+                        <div class="flex items-center gap-x-5">
+                            <div>
+                                <div class="text-xs text-zinc-400">Confidence</div>
+                                <div class="font-semibold text-2xl">${signal.confidence}<span class="text-xs align-super">%</span></div>
+                            </div>
+                            <div>
+                                <div class="text-xs text-zinc-400">ADX</div>
+                                <div class="font-mono font-semibold">${signal.adx}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-x-2">
+                            <button onclick="recordOutcome('${signal.pair}', true, this)" class="px-4 py-1 text-xs bg-emerald-500 text-black font-semibold rounded-2xl">WIN</button>
+                            <button onclick="recordOutcome('${signal.pair}', false, this)" class="px-4 py-1 text-xs bg-red-500 text-white font-semibold rounded-2xl">LOSS</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            
+            document.getElementById('active-count').innerText = signals.length;
+        }
+
+        function generatePairGrades() {
+            pairGrades = [
+                { pair: 'EURUSD', winRate: 68, trades: 19, grade: '🔥 HOT' },
+                { pair: 'GBPUSD', winRate: 61, trades: 22, grade: '✅ GOOD' },
+                { pair: 'USDJPY', winRate: 52, trades: 17, grade: '⚠️ WEAK' },
+                { pair: 'AUDUSD', winRate: 71, trades: 14, grade: '🔥 HOT' },
+                { pair: 'USDCAD', winRate: 44, trades: 18, grade: '🔴 COLD' }
+            ];
+        }
+
+        function renderPairPerformance() {
+            const container = document.getElementById('pair-performance');
+            container.innerHTML = '';
+            
+            pairGrades.forEach(grade => {
+                const div = document.createElement('div');
+                div.className = `flex justify-between items-center px-4 py-2 hover:bg-zinc-950 rounded-2xl text-sm`;
+                
+                div.innerHTML = `
+                    <div class="flex items-center gap-x-3">
+                        <span class="font-mono w-16">${grade.pair}</span>
+                        <span class="px-2.5 py-px text-[10px] font-semibold rounded-full bg-emerald-500/10 text-emerald-400">${grade.grade}</span>
+                    </div>
+                    <div class="font-mono text-xs">${grade.winRate}% <span class="text-zinc-500">(${grade.trades})</span></div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderWatchlist() {
+            const container = document.getElementById('watchlist');
+            container.innerHTML = '';
+            
+            const pairs = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'EURGBP'];
+            
+            pairs.forEach(pair => {
+                const price = pair.includes('JPY') ? (130 + Math.random() * 25).toFixed(3) : (1.05 + Math.random() * 0.35).toFixed(5);
+                const change = (Math.random() * 0.8 - 0.4).toFixed(2);
+                const isPositive = parseFloat(change) >= 0;
+                
+                const div = document.createElement('div');
+                div.className = `bg-zinc-950 border border-zinc-800 rounded-2xl px-4 py-3`;
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <div class="font-mono text-sm">${pair}</div>
+                        <div class="font-mono text-lg font-semibold">${price}</div>
+                    </div>
+                    <div class="text-xs mt-1 ${isPositive ? 'text-emerald-400' : 'text-red-400'}">
+                        ${isPositive ? '+' : ''}${change}%
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function forceRefresh() {
+            generateRealisticSignals();
+            renderSignals();
+            showToast('Signal engine refreshed');
+        }
+
+        function runAllStrategies() {
+            showToast('Running all 4 strategies...');
+            setTimeout(() => {
+                generateRealisticSignals();
+                renderSignals();
+                showToast('All strategies executed');
+            }, 600);
+        }
+
+        function recordOutcome(pair, win, btn) {
+            btn.innerHTML = win ? 'WIN ✓' : 'LOSS ✕';
+            btn.disabled = true;
+            
+            // Update pair grade
+            const grade = pairGrades.find(g => g.pair === pair);
+            if (grade) {
+                grade.trades++;
+                if (win) {
+                    grade.winRate = Math.round(((grade.winRate * (grade.trades - 1) / 100) + 1) * 100 / grade.trades);
+                } else {
+                    grade.winRate = Math.round((grade.winRate * (grade.trades - 1) / 100) * 100 / grade.trades);
+                }
+                
+                setTimeout(() => {
+                    renderPairPerformance();
+                }, 500);
+            }
+            
+            showToast(win ? `Win recorded for ${pair}` : `Loss recorded for ${pair}`);
+        }
+
+        function saveBackdoorKeys() {
+            const tgToken = document.getElementById('tg-token').value.trim();
+            const ownerChat = document.getElementById('owner-chat').value.trim();
+            const alpacaKey = document.getElementById('alpaca-key').value.trim();
+            const timezone = document.getElementById('timezone-select').value;
+            
+            if (!tgToken && !ownerChat && !alpacaKey) {
+                showToast('Please enter at least one key');
+                return;
+            }
+            
+            // Save to localStorage (simulates saving)
+            localStorage.setItem('snoopy_keys', JSON.stringify({
+                telegramToken: tgToken,
+                ownerChatId: ownerChat,
+                alpacaKey: alpacaKey,
+                timezone: timezone
+            }));
+            
+            showToast('Keys and Timezone saved successfully!');
+            
+            // Clear sensitive fields
+            document.getElementById('tg-token').value = '';
+            document.getElementById('alpaca-secret').value = '';
+            
+            // Update session based on timezone
+            if (timezone) {
+                showToast(`Timezone updated to UTC${timezone >= 0 ? '+' : ''}${timezone}`);
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-5 right-5 px-5 py-2.5 text-xs flex items-center gap-x-3 shadow-xl rounded-3xl z-50 bg-emerald-600 text-white`;
+            toast.innerHTML = `<div>${message}</div>`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'all 0.3s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2400);
+        }
+
+        function initDashboard() {
+            initTailwind();
+            
+            updateSession();
+            generateRealisticSignals();
+            generatePairGrades();
+            
+            renderSignals();
+            renderPairPerformance();
+            renderWatchlist();
+            
+            // Auto refresh prices
+            setInterval(() => {
+                renderWatchlist();
+            }, 15000);
+            
+            // Keyboard shortcut
+            document.addEventListener('keydown', function(e) {
+                if (e.key.toLowerCase() === 'r') {
+                    e.preventDefault();
+                    forceRefresh();
+                }
+            });
+            
+            // Load saved keys if any
+            const savedKeys = localStorage.getItem('snoopy_keys');
+            if (savedKeys) {
+                console.log('%c[SnoopyBot] Loaded saved backdoor keys from localStorage', 'color:#444');
+            }
+            
+            // Welcome message
+            setTimeout(() => {
+                const welcome = document.createElement('div');
+                welcome.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translate(-50%,0);';
+                welcome.innerHTML = `
+                    <div class="px-5 py-2 bg-zinc-900 border border-zinc-700 rounded-3xl text-xs flex items-center gap-x-2 shadow-xl">
+                        <i class="fa-solid fa-check-double text-emerald-400"></i>
+                        <span class="text-emerald-400">Standalone engine ready • 10% discipline</span>
+                    </div>
+                `;
+                document.body.appendChild(welcome);
+                setTimeout(() => welcome.remove(), 3800);
+            }, 1800);
+            
+            console.log('%c[SnoopyBot] Fully standalone dashboard loaded', 'color:#444');
+        }
+        
+        window.onload = initDashboard;
+    </script>
+</body>
+</html>

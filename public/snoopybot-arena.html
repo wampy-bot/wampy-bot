@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNOOPY BOT v2.0 • Signal Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600&amp;display=swap');
+        
+        body {
+            font-family: 'Inter', system_ui, sans-serif;
+            background: #0a0a0a;
+        }
+        
+        .font-display {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .trading-card {
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .signal-row {
+            transition: all 0.15s ease;
+        }
+
+        .signal-row:hover {
+            background-color: #171717;
+        }
+
+        .metric {
+            font-variant-numeric: tabular-nums;
+        }
+
+        .section-header {
+            font-size: 11px;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .price {
+            font-family: 'Space Grotesk', monospace;
+            font-weight: 600;
+        }
+
+        .live-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        .arena-header {
+            background: linear-gradient(to right, #111, #0a0a0a);
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200">
+    <!-- Top Navigation -->
+    <div class="border-b border-zinc-800 bg-zinc-900">
+        <div class="max-w-screen-2xl mx-auto px-6">
+            <div class="flex items-center justify-between h-14">
+                <div class="flex items-center gap-x-4">
+                    <div class="flex items-center gap-x-3">
+                        <div class="w-8 h-8 bg-emerald-500 rounded-2xl flex items-center justify-center">
+                            <i class="fa-solid fa-paw text-white text-2xl"></i>
+                        </div>
+                        <div>
+                            <span class="font-display text-2xl font-semibold tracking-tighter">SNOOPY BOT</span>
+                            <span class="text-emerald-400 text-[10px] font-mono ml-1 tracking-widest">v2.0</span>
+                        </div>
+                    </div>
+                    
+                    <div class="px-3 py-1 text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center gap-x-1.5">
+                        <div class="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse"></div>
+                        <span class="font-mono text-[10px]">SIGNAL ENGINE LIVE</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-x-6 text-sm">
+                    <div class="flex items-center gap-x-2">
+                        <span class="text-emerald-400">Scanner:</span>
+                        <span class="font-semibold text-emerald-400">Active</span>
+                    </div>
+                    <div class="h-3 w-px bg-zinc-700"></div>
+                    <div class="text-xs px-3 py-1 bg-zinc-800 rounded-full">UTC+2 • CAT</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-screen-2xl mx-auto px-6 pt-6">
+        
+        <!-- Account Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="section-header mb-1">BALANCE</div>
+                <div class="font-display text-5xl font-semibold tracking-tighter">$100,000</div>
+                <div class="text-emerald-400 text-sm mt-1">+ $2,840 today</div>
+            </div>
+            
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="section-header mb-1">BUYING POWER</div>
+                <div class="font-display text-5xl font-semibold tracking-tighter">$400,000</div>
+                <div class="text-xs text-zinc-400 mt-1">4x leverage available</div>
+            </div>
+            
+            <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="section-header mb-1">TODAY'S PERFORMANCE</div>
+                        <div class="font-display text-4xl font-semibold tracking-tighter">+2.84%</div>
+                        <div class="text-emerald-400 text-sm">14 signals • 11 wins</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full">87% WR</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Market Scanner + Settings -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Left Column: Market Types + Settings -->
+            <div class="lg:col-span-3">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5 mb-6">
+                    <div class="section-header mb-4">MARKET SCANNER</div>
+                    
+                    <div class="space-y-1 text-sm">
+                        <div class="flex items-center justify-between px-3 py-2 bg-zinc-950 rounded-2xl">
+                            <div class="flex items-center gap-x-2"><i class="fa-solid fa-globe w-4"></i> <span>FOREX</span></div>
+                            <div class="text-emerald-400 text-xs">42 pairs</div>
+                        </div>
+                        <div class="flex items-center justify-between px-3 py-2 bg-emerald-500/10 text-emerald-400 rounded-2xl">
+                            <div class="flex items-center gap-x-2"><i class="fa-solid fa-chart-line w-4"></i> <span>OTC</span></div>
+                            <div class="text-xs">18 pairs</div>
+                        </div>
+                        <div class="flex items-center justify-between px-3 py-2 bg-zinc-950 rounded-2xl">
+                            <div class="flex items-center gap-x-2"><i class="fa-brands fa-bitcoin w-4"></i> <span>CRYPTO</span></div>
+                            <div class="text-xs">9 pairs</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bot Settings -->
+                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                    <div class="section-header mb-4">BOT SETTINGS</div>
+                    
+                    <div class="space-y-5 text-sm">
+                        <div>
+                            <div class="flex justify-between mb-1.5">
+                                <span class="text-xs text-zinc-400">Get Ready Time</span>
+                            </div>
+                            <div class="flex gap-1">
+                                <div class="px-3 py-1 text-xs bg-emerald-500 text-black rounded-full font-medium">30s</div>
+                                <div class="px-3 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-full cursor-pointer">45s</div>
+                                <div class="px-3 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-full cursor-pointer">60s</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="flex justify-between mb-1.5">
+                                <span class="text-xs text-zinc-400">Duration</span>
+                            </div>
+                            <div class="flex flex-wrap gap-1">
+                                <div class="px-2.5 py-1 text-xs bg-emerald-500 text-black rounded-full font-medium">1m</div>
+                                <div class="px-2.5 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-full cursor-pointer">2m</div>
+                                <div class="px-2.5 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-full cursor-pointer">5m</div>
+                                <div class="px-2.5 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-full cursor-pointer">15m</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="text-xs text-zinc-400 mb-1.5">Preferred Broker</div>
+                            <div class="flex gap-1">
+                                <div class="px-3 py-1 text-xs bg-emerald-500 text-black rounded-full font-medium">Pocket Option</div>
+                                <div class="px-3 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-full cursor-pointer">IQ Option</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Signals -->
+            <div class="lg:col-span-6">
+                <div class="flex items-center justify-between mb-3 px-1">
+                    <div class="font-semibold flex items-center gap-x-2">
+                        <span>Active Signals</span>
+                        <span id="active-count" class="text-xs px-2 py-px bg-emerald-500/10 text-emerald-400 rounded-full">6</span>
+                    </div>
+                    <button onclick="forceRefreshSignals()" 
+                            class="text-xs flex items-center gap-x-2 px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 rounded-3xl transition-colors">
+                        <i class="fa-solid fa-sync fa-sm"></i>
+                        <span>Refresh</span>
+                    </button>
+                </div>
+                
+                <div id="active-signals" class="space-y-3">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Watchlist -->
+            <div class="lg:col-span-3">
+                <div class="bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="section-header">WATCHLIST</div>
+                        <div class="text-xs text-emerald-400">24 pairs</div>
+                    </div>
+                    
+                    <div id="watchlist" class="space-y-[1px] text-xs max-h-[380px] overflow-auto pr-1">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Technical Indicators Footer -->
+        <div class="mt-8 bg-zinc-900 border border-zinc-800 rounded-3xl p-5">
+            <div class="flex items-center justify-between mb-3">
+                <div class="section-header">ACTIVE INDICATORS</div>
+                <div class="text-xs text-emerald-400">All systems optimal</div>
+            </div>
+            
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <div class="flex items-center justify-between px-4 py-3 bg-zinc-950 rounded-2xl">
+                    <div>EMA 200 (15m)</div>
+                    <div class="text-emerald-400">Aligned</div>
+                </div>
+                <div class="flex items-center justify-between px-4 py-3 bg-zinc-950 rounded-2xl">
+                    <div>ATR Gate (14)</div>
+                    <div class="text-emerald-400">Pass</div>
+                </div>
+                <div class="flex items-center justify-between px-4 py-3 bg-zinc-950 rounded-2xl">
+                    <div>Bollinger Bands</div>
+                    <div class="text-emerald-400">Squeeze</div>
+                </div>
+                <div class="flex items-center justify-between px-4 py-3 bg-zinc-950 rounded-2xl">
+                    <div>Volume Spike</div>
+                    <div class="text-emerald-400">Detected</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BACKDOOR PANEL -->
+        <div class="mt-6 bg-zinc-900 border border-red-900/50 rounded-3xl p-5">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center gap-x-2">
+                    <i class="fa-solid fa-terminal text-red-400"></i>
+                    <span class="font-semibold text-red-400">BACKDOOR • API CONTROL</span>
+                </div>
+                <div class="text-xs px-2 py-1 bg-red-500/10 text-red-400 rounded">DEV MODE</div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <!-- API Status -->
+                <div>
+                    <div class="text-xs text-zinc-400 mb-2">LIVE API STATUS</div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between items-center bg-zinc-950 px-3 py-2 rounded-2xl">
+                            <span>GET /api/signals</span>
+                            <button onclick="callApi('GET', '/api/signals')" class="px-3 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-xl">Call</button>
+                        </div>
+                        <div class="flex justify-between items-center bg-zinc-950 px-3 py-2 rounded-2xl">
+                            <span>GET /api/signals/status</span>
+                            <button onclick="callApi('GET', '/api/signals/status')" class="px-3 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-xl">Call</button>
+                        </div>
+                        <div class="flex justify-between items-center bg-zinc-950 px-3 py-2 rounded-2xl">
+                            <span>POST /api/signals/refresh</span>
+                            <button onclick="callApi('POST', '/api/signals/refresh')" class="px-3 py-1 text-xs bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl">Force Refresh</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Telegram Backdoor -->
+                <div>
+                    <div class="text-xs text-zinc-400 mb-2">TELEGRAM BACKDOOR</div>
+                    <div class="space-y-2">
+                        <input id="telegram-message" type="text" placeholder="Custom message or signal ID" 
+                               class="w-full bg-zinc-950 border border-zinc-700 px-3 py-2 text-sm rounded-2xl">
+                        
+                        <div class="flex gap-2">
+                            <button onclick="pushToTelegram()" 
+                                    class="flex-1 px-4 py-2 text-xs bg-red-600 hover:bg-red-500 text-white rounded-3xl font-medium">
+                                PUSH TO TELEGRAM
+                            </button>
+                            <button onclick="callApi('POST', '/api/signals/push-telegram')" 
+                                    class="px-4 py-2 text-xs bg-zinc-800 hover:bg-zinc-700 rounded-3xl">
+                                Manual Push
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3 text-[10px] text-zinc-500">
+                All 10-step signal engine logic active (Tokyo • London • New York)
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tailwind script
+        function initTailwind() {}
+
+        let signals = [];
+        let watchlistPrices = {};
+
+        function generateSignals() {
+            const pairs = ['EURUSD', 'GBPUSD', 'USDJPY', 'AUDUSD', 'USDCAD', 'USD/MXN', 'EURGBP'];
+            signals = [];
+            
+            for (let i = 0; i < 6; i++) {
+                const pair = pairs[Math.floor(Math.random() * pairs.length)];
+                const direction = Math.random() > 0.5 ? 'BUY' : 'SELL';
+                const confidence = Math.floor(Math.random() * 12) + 86;
+                const price = (pair.includes('USDJPY') || pair.includes('USD/MXN')) ? 
+                              (17 + Math.random() * 132).toFixed(5) : 
+                              (0.85 + Math.random() * 1.4).toFixed(5);
+                
+                signals.push({
+                    id: 'sig_' + Date.now() + i,
+                    pair: pair,
+                    direction: direction,
+                    price: price,
+                    confidence: confidence,
+                    expiry: Math.random() > 0.6 ? '2m' : '5m',
+                    readyTime: Math.floor(Math.random() * 25) + 10,
+                    strategy: confidence > 92 ? 'ATR Breakout' : 'EMA Crossover',
+                    adx: Math.floor(Math.random() * 22) + 29
+                });
+            }
+        }
+
+        function renderSignals() {
+            const container = document.getElementById('active-signals');
+            container.innerHTML = '';
+            
+            signals.forEach(signal => {
+                const isBuy = signal.direction === 'BUY';
+                const color = isBuy ? 'emerald' : 'red';
+                
+                const div = document.createElement('div');
+                div.className = `trading-card bg-zinc-900 border border-zinc-800 rounded-3xl p-4 signal-row`;
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <div class="flex items-center gap-x-3">
+                                <span class="font-semibold text-xl">${signal.pair}</span>
+                                <span class="px-3 py-0.5 text-xs font-bold rounded-full bg-${color}-500/10 text-${color}-400">${signal.direction}</span>
+                            </div>
+                            <div class="text-xs text-zinc-400 mt-0.5">${signal.strategy}</div>
+                        </div>
+                        
+                        <div class="text-right">
+                            <div class="font-mono text-xl font-semibold">${signal.price}</div>
+                            <div class="text-xs text-emerald-400">Market Price</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 flex items-end justify-between">
+                        <div>
+                            <div class="flex items-center gap-x-2">
+                                <div class="text-xs">Get Ready</div>
+                                <div class="font-mono text-sm px-2 py-px bg-zinc-800 rounded">${signal.readyTime}s</div>
+                            </div>
+                            
+                            <div class="mt-1 flex items-center gap-x-4">
+                                <div>
+                                    <span class="text-xs text-zinc-400">Confidence</span>
+                                    <div class="font-semibold text-2xl leading-none">${signal.confidence}<span class="text-xs align-super">%</span></div>
+                                </div>
+                                
+                                <div>
+                                    <span class="text-xs text-zinc-400">Expiry</span>
+                                    <div class="font-mono font-semibold">${signal.expiry}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex flex-col gap-y-1.5 items-end">
+                            <button onclick="executeTrade('${signal.id}', true, this)" 
+                                    class="px-5 py-1.5 text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 transition-colors text-black rounded-3xl flex items-center justify-center w-[118px]">
+                                <span>EXECUTE</span>
+                            </button>
+                            
+                            <div class="flex gap-x-1.5 w-[118px]">
+                                <button onclick="skipSignal('${signal.id}', this)" 
+                                        class="flex-1 px-3 py-1 text-xs border border-zinc-700 hover:bg-zinc-800 rounded-3xl">SKIP</button>
+                                <button onclick="launchBroker('${signal.pair}')" 
+                                        class="flex-1 px-3 py-1 text-xs border border-emerald-700 hover:bg-emerald-900/30 text-emerald-400 rounded-3xl">LAUNCH</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            
+            document.getElementById('active-count').innerText = signals.length;
+        }
+
+        function generateWatchlist() {
+            const pairs = [
+                'EUR/USD', 'GBP/USD', 'USD/JPY', 'AUD/USD', 'USD/CAD', 'EUR/GBP',
+                'USD/MXN', 'USD/ZAR', 'EUR/JPY', 'GBP/JPY'
+            ];
+            
+            watchlistPrices = {};
+            pairs.forEach(pair => {
+                watchlistPrices[pair] = (pair.includes('JPY') || pair.includes('MXN') || pair.includes('ZAR')) 
+                    ? (17 + Math.random() * 140).toFixed(2)
+                    : (0.95 + Math.random() * 1.35).toFixed(5);
+            });
+        }
+
+        function renderWatchlist() {
+            const container = document.getElementById('watchlist');
+            container.innerHTML = '';
+            
+            Object.keys(watchlistPrices).forEach(pair => {
+                const price = watchlistPrices[pair];
+                const change = (Math.random() * 0.4 - 0.2).toFixed(2);
+                const isPositive = parseFloat(change) >= 0;
+                
+                const div = document.createElement('div');
+                div.className = `flex justify-between items-center px-3 py-[7px] hover:bg-zinc-950 rounded-xl text-xs`;
+                
+                div.innerHTML = `
+                    <div class="font-mono">${pair}</div>
+                    <div class="flex items-center gap-x-3">
+                        <div class="font-mono text-right">${price}</div>
+                        <div class="w-9 text-right font-mono text-xs ${isPositive ? 'text-emerald-400' : 'text-red-400'}">
+                            ${isPositive ? '+' : ''}${change}%
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function forceRefreshSignals() {
+            generateSignals();
+            renderSignals();
+            
+            // Toast
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-5 right-5 px-5 py-2 bg-zinc-800 text-xs border border-zinc-700 rounded-3xl flex items-center gap-x-2`;
+            toast.innerHTML = `<span>Signal engine refreshed</span>`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'all .3s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 1400);
+        }
+
+        function executeTrade(signalId, win, btn) {
+            const signalIndex = signals.findIndex(s => s.id === signalId);
+            if (signalIndex === -1) return;
+            
+            const signal = signals[signalIndex];
+            
+            btn.innerHTML = 'EXECUTED ✓';
+            btn.disabled = true;
+            btn.classList.add('!bg-emerald-600');
+            
+            // Simulate outcome recording
+            setTimeout(() => {
+                showToast(`Trade executed: ${signal.pair} • ${signal.direction}`, 'success');
+                
+                // Update pair performance (simulated)
+                updatePairPerformance(signal.pair, win);
+                
+                // Remove signal
+                signals.splice(signalIndex, 1);
+                renderSignals();
+            }, 900);
+        }
+
+        function skipSignal(signalId, btn) {
+            const signalIndex = signals.findIndex(s => s.id === signalId);
+            if (signalIndex === -1) return;
+            
+            btn.innerHTML = 'SKIPPED';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                signals.splice(signalIndex, 1);
+                renderSignals();
+                showToast('Signal skipped', 'error');
+            }, 400);
+        }
+
+        function launchBroker(pair) {
+            window.open('https://pocketoption.com/en/cabinet/demo-quick-high-low/', '_blank');
+            showToast(`Opening ${pair} on Pocket Option`, 'success');
+        }
+
+        function showToast(message, type) {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-5 right-5 px-5 py-2.5 text-xs flex items-center gap-x-3 shadow-xl rounded-3xl z-50
+                ${type === 'success' ? 'bg-emerald-600' : 'bg-red-600'} text-white`;
+            toast.innerHTML = `<div>${message}</div>`;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'all 0.3s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 2200);
+        }
+
+        function updatePairPerformance(pair, win) {
+            // Simple simulation of pair grading update
+            console.log(`[SnoopyBot] Pair ${pair} performance updated: ${win ? 'WIN' : 'LOSS'}`);
+        }
+
+        // ==================== BACKDOOR FUNCTIONS ====================
+        async function callApi(method, endpoint) {
+            try {
+                const res = await fetch(endpoint, { method });
+                const data = await res.json();
+                
+                const toast = document.createElement('div');
+                toast.className = `fixed bottom-5 right-5 px-5 py-2.5 text-xs flex items-center gap-x-3 shadow-xl rounded-3xl z-50 bg-zinc-800 text-emerald-400 border border-zinc-700`;
+                toast.innerHTML = `<div>${endpoint} → ${JSON.stringify(data).slice(0, 80)}...</div>`;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.transition = 'all 0.3s';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2800);
+                
+                // If it's a refresh, update signals
+                if (endpoint.includes('refresh')) {
+                    setTimeout(() => {
+                        generateSignals();
+                        renderSignals();
+                    }, 800);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function pushToTelegram() {
+            const input = document.getElementById('telegram-message');
+            const message = input.value.trim() || 'Manual backdoor push from dashboard';
+            
+            try {
+                const res = await fetch('/api/signals/push-telegram', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                
+                const data = await res.json();
+                
+                const toast = document.createElement('div');
+                toast.className = `fixed bottom-5 right-5 px-5 py-2.5 text-xs flex items-center gap-x-3 shadow-xl rounded-3xl z-50 bg-red-600 text-white`;
+                toast.innerHTML = `<div>TELEGRAM BACKDOOR → ${data.message || 'Sent'}</div>`;
+                document.body.appendChild(toast);
+                
+                setTimeout(() => {
+                    toast.style.transition = 'all 0.3s';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 300);
+                }, 2600);
+                
+                input.value = '';
+            } catch (e) {
+                alert('Telegram push failed (check backend)');
+            }
+        }
+
+        function updateLivePrices() {
+            // Update watchlist prices occasionally
+            setInterval(() => {
+                const container = document.getElementById('watchlist');
+                if (!container) return;
+                
+                Object.keys(watchlistPrices).forEach(pair => {
+                    const change = (Math.random() * 0.06 - 0.03);
+                    let current = parseFloat(watchlistPrices[pair]);
+                    current = current * (1 + change);
+                    
+                    if (pair.includes('JPY') || pair.includes('MXN')) {
+                        watchlistPrices[pair] = current.toFixed(2);
+                    } else {
+                        watchlistPrices[pair] = current.toFixed(5);
+                    }
+                });
+                
+                renderWatchlist();
+            }, 14000);
+        }
+
+        function init() {
+            initTailwind();
+            
+            generateSignals();
+            generateWatchlist();
+            
+            renderSignals();
+            renderWatchlist();
+            
+            // Auto refresh signals every 50 seconds
+            setInterval(() => {
+                if (signals.length < 5) {
+                    generateSignals();
+                    renderSignals();
+                }
+            }, 50000);
+            
+            updateLivePrices();
+            
+            // Keyboard shortcut
+            document.addEventListener('keydown', function(e) {
+                if (e.key.toLowerCase() === 'r' && document.activeElement.tagName === 'BODY') {
+                    e.preventDefault();
+                    forceRefreshSignals();
+                }
+            });
+            
+            // Welcome toast
+            setTimeout(() => {
+                const welcome = document.createElement('div');
+                welcome.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translate(-50%,0);';
+                welcome.innerHTML = `
+                    <div class="px-5 py-2 bg-zinc-900 border border-zinc-700 rounded-3xl text-xs flex items-center gap-x-2 shadow-xl">
+                        <i class="fa-solid fa-check-double text-emerald-400"></i>
+                        <span class="text-emerald-400">Signal engine active • 10% discipline mode</span>
+                    </div>
+                `;
+                document.body.appendChild(welcome);
+                setTimeout(() => welcome.remove(), 4200);
+            }, 1800);
+            
+            console.log('%c[SnoopyBot] Arena-style Signal Engine initialized', 'color:#444');
+        }
+        
+        window.onload = init;
+    </script>
+</body>
+</html>
