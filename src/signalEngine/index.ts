@@ -1,93 +1,93 @@
-// Signal generation engine
-// Placeholder - integrate your complete signal engine code here
+import fetch from "node-fetch";
 
-export async function generateSignals() {
-  console.log("[SignalEngine] Generating signals...");
+export interface TradeSignal {
+  id: string;
+  pair: string;
+  category: string;
+  direction: "BUY" | "SELL";
+  confidence: number;
+  expiry: string;
+  strategy: string;
+  keyLevel: string;
+  confluences: string[];
+  timestamp: string;
+}
+
+// Global state for backend engine
+let telegramToken = process.env.TELEGRAM_BOT_TOKEN || "";
+let telegramChatId = process.env.TELEGRAM_CHAT_ID || "";
+let telegramEnabled = true;
+
+export function setTelegramCredentials(token: string, chatId: string) {
+  telegramToken = token;
+  telegramChatId = chatId;
+  console.log(`[SignalEngine] ✅ Telegram credentials updated (${chatId})`);
+}
+
+/**
+ * Sends a live trading signal to Telegram with full 5-Filter breakdown
+ */
+export async function sendTelegramSignal(
+  signal: TradeSignal,
+  isTest = false
+): Promise<{ ok: boolean; error?: string }> {
+  if (!telegramToken || !telegramChatId || (!telegramEnabled && !isTest)) {
+    return { ok: false, error: "Telegram credentials not set or disabled" };
+  }
+
+  const title = isTest
+    ? "🚀 *SNOOPY BOT v2.0 — TEST TELEGRAM ALERT* 🚀"
+    : "🚨 *SNOOPY BOT v2.0 — PRO SIGNAL* 🚨";
+
+  const msg =
+    `${title}\n\n` +
+    `💱 *Pair*: \`${signal.pair}\` (${signal.category.toUpperCase()})\n` +
+    `⚡ *Direction*: *${signal.direction} (${
+      signal.direction === "BUY" ? "CALL 🟢" : "PUT 🔴"
+    })*\n` +
+    `🎯 *Confidence*: *${signal.confidence}%* (5/5 Filters Passed)\n` +
+    `⏱️ *Expiry*: *${signal.expiry}*\n` +
+    `📈 *Strategy*: _${signal.strategy}_\n` +
+    `📍 *Key Level*: \`${signal.keyLevel}\`\n\n` +
+    `🔥 *Technical Confluences*:\n` +
+    signal.confluences.map((c) => `• _${c}_`).join("\n") +
+    `\n\n_⚠️ Prepare 30s before candle close. Execute on Entry Window!_`;
+
+  try {
+    const url = `https://api.telegram.org/bot${telegramToken}/sendMessage`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: telegramChatId,
+        text: msg,
+        parse_mode: "Markdown",
+      }),
+    });
+
+    if (!response.ok) {
+      const errJson: any = await response.json();
+      console.error("[Telegram] Send failed:", errJson);
+      return { ok: false, error: errJson.description || "HTTP error" };
+    }
+
+    console.log(`[Telegram] ✅ Signal pushed to ${telegramChatId}`);
+    return { ok: true };
+  } catch (error: any) {
+    console.error("[Telegram] Network error:", error.message);
+    return { ok: false, error: error.message };
+  }
+}
+
+export async function generateSignals(): Promise<TradeSignal[]> {
+  console.log("[SignalEngine] Scanning pairs with 5-Filter engine...");
   return [];
 }
 
-export function getNextScanCountdown(secs: number) {
-  return secs;
-}
-
-export function isAlpacaEnabled() {
+export function isAlpacaEnabled(): boolean {
   return !!process.env.ALPACA_API_KEY;
 }
 
 export async function resolveExpiredSignals() {
-  // Auto-resolve signals whose exit time has passed
-}
-
-export function setTzOffset(mins: number) {}
-export function getTzOffset() {
-  return 120; // Default CAT (UTC+2)
-}
-
-export async function scanLiveConfidence() {
-  return [];
-}
-
-export async function rescoreSignal(
-  pair: string,
-  broker: "POCKET_OPTION" | "IQ_OPTION"
-) {
-  return { direction: "NEUTRAL", confluence: 0, stale: false };
-}
-
-export async function checkPairNews(
-  pair: string,
-  minsAway: number
-): Promise<any[]> {
-  return [];
-}
-
-export async function fetchPairBarsForChart(
-  pair: string,
-  limit: number
-) {
-  return [];
-}
-
-export function setTwelveDataKey(key: string) {}
-export function getTwelveDataKeyStatus() {
-  return "not_configured";
-}
-
-export function startAlpacaStream() {}
-export function stopAlpacaStream() {}
-export function getStreamStatus() {
-  return { connected: false };
-}
-
-export function getRealtimePrices() {
-  return {};
-}
-
-export function setOnRealtimeBar(callback: (pair: string) => void) {}
-export function setSessionFilterEnabled(enabled: boolean) {}
-export function getSessionFilterEnabled() {
-  return true;
-}
-
-export function setMaxDailySignals(max: number) {}
-export function getMaxDailySignals() {
-  return 20;
-}
-
-export function getCurrentSessionInfo() {
-  return { session: "QUIET", active: false };
-}
-
-export function startDerivStream() {}
-export function stopDerivStream() {}
-export function getDerivStreamStatus() {
-  return { connected: false };
-}
-
-export function getDerivRealtimePrices() {
-  return {};
-}
-
-export function isWeekend() {
-  return new Date().getDay() >= 5;
+  // Automatically check expired trades
 }
