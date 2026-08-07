@@ -25,10 +25,10 @@ price: 1.08750,
 direction: 'BUY',
 expiry: '2m',
 readyTime: '30s',
-feedMode: localStorage.getItem('snoopy_feed_provider') || 'auto',
+feedMode: safeGetStorage('snoopy_feed_provider', 'auto'),
 history: {},
-tgToken: localStorage.getItem('tg_token') || '8644055293:AAH7bPFYPa7kC7xkAblTrXeQcTU3U27YCps',
-tgChatId: localStorage.getItem('tg_chat_id') || ''
+tgToken: safeGetStorage('tg_token', '8644055293:AAH7bPFYPa7kC7xkAblTrXeQcTU3U27YCps'),
+tgChatId: safeGetStorage('tg_chat_id', '')
 };
 function init() {
 PAIRS_DB.forEach(p => {
@@ -46,8 +46,8 @@ state.history[p] = ohlc;
 });
 document.getElementById('tg-token').value = state.tgToken;
 document.getElementById('tg-chat-id').value = state.tgChatId;
-document.getElementById('alpaca-api-key').value = localStorage.getItem('snoopy_alpaca_key') || '';
-document.getElementById('alpaca-secret-key').value = localStorage.getItem('snoopy_alpaca_secret') || '';
+document.getElementById('alpaca-api-key').value = safeGetStorage('snoopy_alpaca_key', '');
+document.getElementById('alpaca-secret-key').value = safeGetStorage('snoopy_alpaca_secret', '');
 const providerEl = document.getElementById('backdoor-provider');
 if(providerEl) providerEl.value = state.feedMode;
 updateHeaderFeedLabel(state.feedMode);
@@ -100,7 +100,7 @@ if(badgeEl) badgeEl.textContent = `${sigText.toUpperCase()} (24ms)`;
 function onBackdoorProviderChange() {
 const mode = document.getElementById('backdoor-provider').value;
 state.feedMode = mode;
-localStorage.setItem('snoopy_feed_provider', mode);
+safeSetStorage('snoopy_feed_provider', mode);
 updateHeaderFeedLabel(mode);
 }
 async function fetchRealTimeFeed() {
@@ -249,10 +249,10 @@ state.tgToken = document.getElementById('tg-token').value.trim();
 state.tgChatId = document.getElementById('tg-chat-id').value.trim();
 const alpKey = document.getElementById('alpaca-api-key').value.trim();
 const alpSec = document.getElementById('alpaca-secret-key').value.trim();
-localStorage.setItem('tg_token', state.tgToken);
-localStorage.setItem('tg_chat_id', state.tgChatId);
-localStorage.setItem('snoopy_alpaca_key', alpKey);
-localStorage.setItem('snoopy_alpaca_secret', alpSec);
+safeSetStorage('tg_token', state.tgToken);
+safeSetStorage('tg_chat_id', state.tgChatId);
+safeSetStorage('snoopy_alpaca_key', alpKey);
+safeSetStorage('snoopy_alpaca_secret', alpSec);
 toggleBackdoor(false);
 alert('✅ Backdoor settings & Live Feed credentials saved successfully!');
 }
