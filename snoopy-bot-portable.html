@@ -267,7 +267,7 @@ selectPair('EUR/USD-OTC');
 setInterval(runScanner, 3000);
 setInterval(fetchRealTimeFeed, 5000);
 setInterval(() => {
-if (!aiEnabled) return;
+// Timer active
 if (state.status === 'WAITING') {
 state.countdownSeconds--;
 if (state.countdownSeconds <= 0) {
