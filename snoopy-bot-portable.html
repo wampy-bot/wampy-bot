@@ -21,7 +21,7 @@ body{background:#0b1120;color:#cbd5e1;font-family:sans-serif}
 <p class="text-[11px] text-slate-400">Embedded inside bot frame • Real-Time Feeds • API Credentials • Zero Overlapping</p>
 </div>
 </div>
-<button onclick="toggleBackdoor(false)" class="bg-red-600/80 hover:bg-red-600 text-white font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1 border border-red-500/50 shadow cursor-pointer"><span>✕</span><span>CLOSE PANEL</span></button>
+<button onclick="toggleBackdoor(false)" class="bg-red-600 hover:bg-red-500 text-white font-black px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 border border-red-400 shadow-xl cursor-pointer transform hover:scale-105 active:scale-95"><span>✕</span><span>CLOSE BACKDOOR PANEL</span></button>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
 <div class="card p-3.5 bg-slate-950/80 border-slate-800 space-y-2.5 flex flex-col justify-between">
@@ -90,7 +90,7 @@ body{background:#0b1120;color:#cbd5e1;font-family:sans-serif}
 <button onclick="testLiveServices()" class="flex-1 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg cursor-pointer"><span>🟢</span><span>TEST ALL LIVE FEEDS (REAL-TIME CHECK)</span></button>
 <button onclick="testTelegram()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg cursor-pointer"><span>📲</span><span>TEST TELEGRAM ALERT</span></button>
 <button onclick="saveBackdoor()" class="flex-1 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-lg cursor-pointer"><span>💾</span><span>CONNECT FEED & SAVE SETTINGS</span></button>
-<button onclick="toggleBackdoor(false)" class="px-5 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold rounded-xl text-xs border border-slate-700 cursor-pointer">✕ CLOSE PANEL</button>
+<button onclick="toggleBackdoor(false)" class="px-5 py-2.5 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl text-xs border border-red-400 cursor-pointer shadow-lg transform hover:scale-105 active:scale-95">✕ CLOSE BACKDOOR PANEL</button>
 </div>
 </div>
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-4"><div class="lg:col-span-3 space-y-4"><div class="card p-4 space-y-3"><div class="row-between border-b border-slate-800 pb-2"><span class="text-xs font-bold text-white uppercase">60+ FX & OTC PAIRS</span><span class="text-[10px] text-emerald-400 font-bold">● LIVE SEARCH</span></div><div class="box-sm text-xs my-2"><span id="scan-mode-label" class="font-bold text-emerald-400 text-[10px]">🤖 AUTO-PICK: BEST TREND</span><button onclick="toggleScanMode()" id="btn-scan-mode" class="px-2 py-0.5 bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 font-bold rounded text-[10px] border border-blue-500/40">
