@@ -29,8 +29,8 @@ app.get("/health", (_req, res) => {
     await registerRoutes(httpServer, app);
     console.log("[API] ✅ Routes registered");
     
-    const PORT = process.env.PORT || 5000;
-    httpServer.listen(PORT, () => {
+    const PORT = Number(process.env.PORT || 5000);
+    httpServer.listen(PORT, '0.0.0.0', () => {
       console.log(`\n🐾 SNOOPY BOT v2.0 running on port ${PORT}`);
       console.log(`📡 API: http://localhost:${PORT}/api`);
       console.log(`🤖 NODE_ENV: ${process.env.NODE_ENV || "development"}\n`);
